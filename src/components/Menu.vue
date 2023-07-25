@@ -4,10 +4,10 @@
       <img class="logo" :src="logo" />
     </router-link>
     <div class="navs mt-1">
-      <div v-for="nav in navs" :key="nav" class="nav">
-        <p>
-          {{ nav }}
-        </p>
+      <div v-for="nav in navs" :key="nav.name" class="nav">
+        <router-link :to="{ name: nav.to }">
+          {{ nav.name }}
+        </router-link>
       </div>
     </div>
   </div>
@@ -15,13 +15,22 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { RouterLink } from 'vue-router'
+
 import logo from '@/assets/images/logo-menu.png'
 export default defineComponent({
   name: 'MenuHome',
+  components: { RouterLink },
   data() {
     return {
       logo,
-      navs: ['Community', 'Recruit', 'Market', 'Blog', 'Info'],
+      navs: [
+        { name: 'Community', to: 'CreateProject' },
+        { name: 'Recruit', to: 'ManageProject' },
+        { name: 'Market', to: 'UpdateProject' },
+        { name: 'Blog', to: 'CreateProject' },
+        { name: 'Info', to: 'CreateProject' },
+      ],
     }
   },
 })

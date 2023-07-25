@@ -29,7 +29,7 @@
           <ToolTip :content="info.name">
             <template #content>
               <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
-                {{ info.name.length > 12 ? info.name.slice(0, 12) + '...' : info.name }}
+                {{ info.name?.length > 12 ? info.name?.slice(0, 12) + '...' : info.name }}
               </span>
             </template>
           </ToolTip>

@@ -1,7 +1,7 @@
 <template>
   <div class="manage-project pt-12 pb-32 2xl:px-36 lg:px-32 px-12 grid justify-items-center">
     <HomeMenu />
-    <div class="header syne-bold text-5xl">Create Amazing Project</div>
+    <div class="header syne-bold text-5xl">Update Project</div>
     <div class="content w-full justify-between flex px-10">
       <div class="right w-7/12 pt-10 pl-16">
         <form onsubmit="return false">
@@ -140,27 +140,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, Ref } from 'vue'
+import { defineComponent, onMounted, ref, Ref } from 'vue'
 import HomeMenu from '@/components/Menu.vue'
 import PopularCard from '@/components/PopularCard'
 import useProjects from '@/stores/project'
-import { useRouter } from 'vue-router'
-
-const { createProject } = useProjects()
+import { useRouter, useRoute } from 'vue-router'
 
 export default defineComponent({
-  name: 'CreateProject',
+  name: 'UpdateProject',
   components: { HomeMenu, PopularCard },
   setup() {
+    const { project, updateProject, getProject } = useProjects()
+
     const router = useRouter()
+    const route = useRoute()
 
     const tag: Ref<string> = ref('')
-    const project = ref({
-      thumbnail: 'https://i.pinimg.com/564x/03/6d/bd/036dbd11c6580775f80e539b2614d1ee.jpg',
-      name: '',
-      description: '',
-      tags: [],
-    })
+    onMounted(() =>
+      getProject(route.params.id).then(() => {
+        project.value.tags = project.value.tags.split(',')
+      })
+    )
+
     function handleAddTag() {
       if (tag.value !== '') {
         project.value.tags.push(tag.value)
@@ -171,13 +172,16 @@ export default defineComponent({
       project.value.tags.splice(index, 1)
     }
     function handleSubmit() {
-      createProject({
-        user_id: 1,
-        name: project.value.name,
-        description: project.value.description,
-        tags: project.value.tags.join(', '),
-        thumbnail: project.value.thumbnail,
-      }).then(() => {
+      updateProject(
+        {
+          user_id: 1,
+          name: project.value.name,
+          description: project.value.description,
+          tags: project.value.tags.join(', '),
+          thumbnail: project.value.thumbnail,
+        },
+        project.value.id
+      ).then(() => {
         router.push({ name: 'ManageProject' })
       })
     }
