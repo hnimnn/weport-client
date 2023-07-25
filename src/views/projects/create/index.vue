@@ -12,32 +12,27 @@
                   >Upload Thumbnail</label
                 >
                 <div
-                  class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                  ref="upload"
+                  class="mt-2 drop-zone w-full h-80"
+                  :class="className"
+                  @click="openFileInput"
+                  @dragover="handleDragOver"
+                  @drop="handleDrop"
+                  @dragleave="handleDragLeave"
                 >
-                  <div class="text-center">
-                    <svg
-                      class="mx-auto h-12 w-12 text-gray-300"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                      <label
-                        for="file-upload"
-                        class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                      >
-                        <span class="color-text">Upload a file</span>
-                        <input id="file-upload" name="file-upload" type="file" class="sr-only" />
-                      </label>
-                      <p class="pl-1">or drag and drop</p>
-                    </div>
-                  </div>
+                  <div v-if="!thumbnail1" class="drop-zone__prompt">Click or drag to upload</div>
+                  <div
+                    v-else
+                    class="drop-zone__thumb"
+                    :style="{ backgroundImage: `url(${thumbnail1})` }"
+                    :data-label="fileName"
+                  ></div>
+                  <input
+                    ref="fileInput"
+                    class="drop-zone__input"
+                    type="file"
+                    @change="handleFileChange"
+                  />
                 </div>
               </div>
             </div>
@@ -142,7 +137,7 @@
 <script lang="ts">
 import { defineComponent, ref, Ref } from 'vue'
 import HomeMenu from '@/components/Menu.vue'
-import PopularCard from '@/components/PopularCard'
+import PopularCard from '@/components/PopularCard.vue'
 import useProjects from '@/stores/project'
 import { useRouter } from 'vue-router'
 
@@ -183,11 +178,109 @@ export default defineComponent({
     }
     return { tag, project, handleAddTag, removeTag, handleSubmit }
   },
+  data() {
+    return {
+      thumbnail1: '',
+      fileName: '',
+    }
+  },
+  methods: {
+    openFileInput() {
+      this.$refs.fileInput.click()
+    },
+    handleFileChange(e) {
+      const file = e.target.files[0]
+      if (file) {
+        this.updateThumbnail(file)
+      }
+    },
+    handleDragOver(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.add('over-upload')
+    },
+    handleDragLeave(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.remove('over-upload')
+    },
+    handleDrop(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.remove('over-upload')
+
+      const file = e.dataTransfer.files[0]
+      if (file) {
+        this.$refs.fileInput.files = e.dataTransfer.files
+        this.updateThumbnail(file)
+      }
+    },
+    updateThumbnail(file: File) {
+      this.fileName = file.name
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader()
+
+        reader.readAsDataURL(file)
+        reader.onload = () => {
+          this.thumbnail1 = reader.result
+          this.project.thumbnail = this.thumbnail1
+        }
+      } else {
+        this.thumbnail1 = null
+      }
+    },
+  },
 })
 </script>
 
 <style lang="scss">
 .manage-project {
+  .drop-zone {
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    cursor: pointer;
+    color: #cccccc;
+    border: 4px dashed #ff56bb;
+    border-radius: 10px;
+  }
+
+  .over-upload {
+    border: 4px solid #ff56bb !important;
+  }
+
+  .drop-zone__input {
+    display: none;
+  }
+
+  .drop-zone__thumb {
+    width: 324px;
+    height: 294px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #cccccc;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: relative;
+  }
+
+  .drop-zone__thumb::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 5px 0;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.75);
+    font-size: 14px;
+    text-align: center;
+  }
+
   .color-outline:focus {
     --tw-ring-offset-color: #ff56bb;
     box-shadow: 0 0 0 0 #ff56bb, inset 0 0 0 calc(2px + 0px) #ff56bb;
