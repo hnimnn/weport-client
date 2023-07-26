@@ -12,7 +12,9 @@
 
       <div class="p-2 mb-1">
         <div class="text-lg font-bold h-7">
-          {{ info.name }}
+          <router-link :to="'/project-detail/' + info.id">
+            {{ info.name }}
+          </router-link>
         </div>
         <div v-if="typeof info.tags === 'string'" class="text-xs font-bold h-4">
           #{{ info.tags?.split(',')?.join(' - ') }}
@@ -36,10 +38,10 @@
         </div>
         <div class="flex justify-between w-32 mt-1">
           <div class="cursor-pointer flex items-center">
-            <LikeButton />
-            <ToolTip :content="info.like">
+            <LikeButton :like-number="likeNumber" :project="info" @like="incrementLikeNumber" />
+            <ToolTip :content="likeNumber">
               <template #content>
-                <span class="text-base font-bold">{{ roundToK(info.like) || 0 }}</span>
+                <span class="text-base font-bold">{{ roundToK(likeNumber) || 0 }}</span>
               </template>
             </ToolTip>
           </div>
@@ -59,7 +61,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import avatarDefault from '@/assets/images/avatar-default.jpg'
 import eyes from '@/assets/icons/Eyes.svg'
 import ToolTip from '@/components/ToolTip.vue'
@@ -78,18 +80,15 @@ export default defineComponent({
     info: {
       type: Object,
       default() {
-        return {
-          id: 0,
-          name: 'Empty',
-          avatar: avatarDefault,
-          image: '',
-          project: 'Empty',
-          tags: [''],
-          like: 0,
-          view: 0,
-        }
+        return {}
       },
     },
+  },
+  setup(props) {
+    const likeNumber = ref(props.info.users_liked?.length)
+    return {
+      likeNumber,
+    }
   },
   data() {
     return {
@@ -102,6 +101,11 @@ export default defineComponent({
     handleAvatar(event: Event) {
       const imgElement = event.target as HTMLImageElement
       imgElement.src = avatarDefault
+    },
+    incrementLikeNumber(isLike: boolean) {
+      console.log(this.likeNumber)
+      if (isLike) this.likeNumber++
+      else this.likeNumber--
     },
   },
 })

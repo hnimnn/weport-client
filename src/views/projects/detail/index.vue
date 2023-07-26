@@ -1,7 +1,7 @@
 <template>
   <div class="manage-project pt-12 pb-32 2xl:px-36 lg:px-32 px-12 grid justify-items-center">
     <HomeMenu />
-    <div class="header syne-bold text-5xl">Update Project</div>
+    <div class="header syne-bold text-5xl">{{ project.name }}</div>
     <div class="content w-full justify-between flex px-10">
       <div class="right w-7/12 pt-10 pl-16">
         <form onsubmit="return false">
@@ -125,12 +125,12 @@
           </div>
 
           <div class="mt-6 flex items-center justify-end gap-x-6">
-            <button
+            <!-- <button
               class="save-button rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               @click="handleSubmit"
             >
               Save
-            </button>
+            </button> -->
           </div>
         </form>
       </div>
@@ -144,23 +144,27 @@ import { defineComponent, onMounted, ref, Ref } from 'vue'
 import HomeMenu from '@/components/Menu.vue'
 import PopularCard from '@/components/PopularCard'
 import useProjects from '@/stores/project'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 export default defineComponent({
-  name: 'UpdateProject',
+  name: 'ProjectDetail',
   components: { HomeMenu, PopularCard },
   setup() {
-    const { project, updateProject, getProject } = useProjects()
+    const { project, getProject } = useProjects()
 
-    const router = useRouter()
     const route = useRoute()
 
     const tag: Ref<string> = ref('')
-    onMounted(() =>
-      getProject(route.params.id).then(() => {
-        project.value.tags = project.value.tags?.split(',')
-      })
-    )
+    onMounted(async () => {
+      getProject(route.params.id)
+      await axios
+        .post(`http://127.0.0.1:8000/api/v1/projects/${route.params.id}/view`)
+        .then((response) => {
+          console.log(response)
+        })
+        .catch((e) => console.log(e))
+    })
 
     function handleAddTag() {
       if (tag.value !== '') {
@@ -171,21 +175,8 @@ export default defineComponent({
     function removeTag(index: number) {
       project.value.tags.splice(index, 1)
     }
-    function handleSubmit() {
-      updateProject(
-        {
-          user_id: 1,
-          name: project.value.name,
-          description: project.value.description,
-          tags: project.value.tags.join(', '),
-          thumbnail: project.value.thumbnail,
-        },
-        project.value.id
-      ).then(() => {
-        router.push({ name: 'ManageProject' })
-      })
-    }
-    return { tag, project, handleAddTag, removeTag, handleSubmit }
+
+    return { tag, project, handleAddTag, removeTag }
   },
 })
 </script>

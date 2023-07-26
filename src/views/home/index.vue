@@ -23,6 +23,9 @@ import HomeMenu from '@/components/Menu.vue'
 export default defineComponent({
   name: 'HomePage',
   components: { HomeBanner, HomeMenu, HomeInteracted, HomePopular },
+  created() {
+    localStorage.setItem('user_id', '1')
+  },
 })
 </script>
 <style lang="scss">

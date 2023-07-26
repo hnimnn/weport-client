@@ -4,34 +4,72 @@
       :class="{ clicked: liked }"
       :src="liked ? heartClicked : heartDefault"
       class="heart-icon w-7 mr-1"
-      @click="toggleLike"
+      @click="
+        () => {
+          toggleLike()
+          $emit('like', liked)
+        }
+      "
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import heartDefault from '@/assets/icons/HeartDefault.svg'
 import heartClicked from '@/assets/icons/HeartClicked.svg'
+import axios from 'axios'
 export default defineComponent({
   name: 'LikeButton',
+  props: {
+    project: {
+      type: Object,
+      default() {
+        return {}
+      },
+    },
+    likeNumber: {
+      type: Number,
+      default() {
+        return 0
+      },
+    },
+  },
+  emits: ['like'],
+  setup(props) {
+    const liked = ref(false)
+
+    liked.value = props.project.users_liked?.some((item) => {
+      console.log(item.id, JSON.parse(localStorage.getItem('user_id')))
+
+      return item.id == JSON.parse(localStorage.getItem('user_id'))
+    })
+    return { liked }
+  },
   data() {
     return {
       heartDefault,
       heartClicked,
-      liked: false,
     }
   },
   methods: {
-    toggleLike() {
+    async toggleLike() {
       this.liked = !this.liked
+      await axios
+        .post(
+          `http://127.0.0.1:8000/api/v1/projects/${this.project.id}/like`,
+          { user_id: 1 },
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        )
+        .then((response) => {
+          console.log(response)
+        })
     },
   },
 })
 </script>
 <style lang="scss">
 .heart-icon {
-  /* Các thuộc tính CSS khác cho hình ảnh */
   transition: transform 0.5s;
 }
 .heart-icon:hover {

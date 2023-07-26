@@ -25,8 +25,8 @@ export default defineComponent({
     return {
       logo,
       navs: [
-        { name: 'Community', to: 'CreateProject' },
-        { name: 'Recruit', to: 'ManageProject' },
+        { name: 'Create', to: 'CreateProject' },
+        { name: 'Manage', to: 'ManageProject' },
         { name: 'Market', to: 'UpdateProject' },
         { name: 'Blog', to: 'CreateProject' },
         { name: 'Info', to: 'CreateProject' },
