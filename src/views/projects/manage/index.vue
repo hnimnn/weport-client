@@ -3,7 +3,7 @@
     <HomeMenu />
     <div class="header syne-bold text-5xl">My Project</div>
     <div class="content w-full justify-between flex px-10 py-10">
-      <div class="grid grid-cols-3 gap-10">
+      <div class="w-full grid grid-cols-3 gap-10">
         <MyProjectCard
           v-for="(project, index) in projects"
           :key="index"
@@ -31,12 +31,12 @@ export default defineComponent({
 import { onMounted } from 'vue'
 
 import useProjects from '@/stores/project'
-const { projects, getProjects, deleteProject } = useProjects()
+const { projects, getProjectsByUserId, deleteProject } = useProjects()
 function handleDeleteProject(id: number) {
   deleteProject(id)
 }
 onMounted(() => {
-  getProjects()
+  getProjectsByUserId({ user_id: JSON.parse(localStorage.getItem('user_id') || '') })
 })
 </script>
 

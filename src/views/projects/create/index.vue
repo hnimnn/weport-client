@@ -48,6 +48,7 @@
                     type="text"
                     class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
+                  <span v-if="errors.name" class="text-rose-500">*{{ errors.name[0] }}</span>
                 </div>
               </div>
               <div class="col-span-full">
@@ -141,17 +142,16 @@ import PopularCard from '@/components/PopularCard.vue'
 import useProjects from '@/stores/project'
 import { useRouter } from 'vue-router'
 
-const { createProject } = useProjects()
-
 export default defineComponent({
   name: 'CreateProject',
   components: { HomeMenu, PopularCard },
   setup() {
+    const { createProject, errors } = useProjects()
     const router = useRouter()
 
     const tag: Ref<string> = ref('')
     const project = ref({
-      thumbnail: 'https://i.pinimg.com/564x/03/6d/bd/036dbd11c6580775f80e539b2614d1ee.jpg',
+      thumbnail: '',
       name: '',
       description: '',
       tags: [],
@@ -167,16 +167,20 @@ export default defineComponent({
     }
     function handleSubmit() {
       createProject({
-        user_id: 1,
+        user_id: Number(localStorage.getItem('user_id')),
         name: project.value.name,
         description: project.value.description,
         tags: project.value.tags.join(', '),
         thumbnail: project.value.thumbnail,
       }).then(() => {
-        router.push({ name: 'ManageProject' })
+        console.log(errors)
+
+        if (!errors.value.name) {
+          router.push({ name: 'ManageProject' })
+        }
       })
     }
-    return { tag, project, handleAddTag, removeTag, handleSubmit }
+    return { tag, project, errors, handleAddTag, removeTag, handleSubmit }
   },
   data() {
     return {
@@ -219,9 +223,11 @@ export default defineComponent({
         const reader = new FileReader()
 
         reader.readAsDataURL(file)
+        var url = window.URL || window.webkitURL
+
         reader.onload = () => {
           this.thumbnail1 = reader.result
-          this.project.thumbnail = this.thumbnail1
+          this.project.thumbnail = url.createObjectURL(file)
         }
       } else {
         this.thumbnail1 = null

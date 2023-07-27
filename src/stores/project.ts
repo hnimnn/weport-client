@@ -15,28 +15,45 @@ type Project = {
 export default function useProjects() {
   const projects = ref([])
   const project = ref([])
+  const errors = ref([])
 
   const getProjects = async () => {
     await instance
       .get('/projects')
       .then((response) => {
         projects.value = response.data
+        console.log(response)
+      })
+      .catch((e) => console.log(e))
+  }
+  const getProjectsByUserId = async (header) => {
+    await instance
+      .get('/user/projects', {
+        headers: header,
+      })
+      .then((response) => {
+        projects.value = response.data
+        console.log(response)
       })
       .catch((e) => console.log(e))
   }
   const createProject = async (data: Project) => {
     try {
+      console.log(data)
+
+      errors.value = false
       await instance.post('/projects', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
     } catch (error) {
       console.log(error)
+      errors.value = error.response.data.errors
     }
   }
   const deleteProject = async (id: number) => {
     try {
       await instance.delete('/projects/' + id)
-      await getProjects()
+      await getProjectsByUserId({ user_id: JSON.parse(localStorage.getItem('user_id')) })
     } catch (error) {
       console.log(error)
     }
@@ -50,7 +67,7 @@ export default function useProjects() {
       .catch((e) => console.log(e))
   }
   const updateProject = async (data: Project, id: number) => {
-    console.log(data)
+    errors.value = false
 
     await instance
       .post(`/projects/${id}?_method=PUT`, data, {
@@ -59,8 +76,18 @@ export default function useProjects() {
       .then((response) => {
         console.log(response)
       })
-      .catch((e) => console.log(e))
+      .catch((error) => (errors.value = error.response.data.errors))
   }
 
-  return { projects, project, getProjects, createProject, deleteProject, getProject, updateProject }
+  return {
+    projects,
+    project,
+    errors,
+    getProjects,
+    createProject,
+    deleteProject,
+    getProject,
+    updateProject,
+    getProjectsByUserId,
+  }
 }

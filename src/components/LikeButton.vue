@@ -1,5 +1,13 @@
 <template>
-  <div class="like-button">
+  {{ console.log(isDisabled) }}
+  <div v-if="isDisabled" class="like-button">
+    <img
+      :class="{ clicked: liked }"
+      :src="liked ? LikeDefaultDisabled : LikeDisabled"
+      class="heart-icon w-7 mr-1"
+    />
+  </div>
+  <div v-else>
     <img
       :class="{ clicked: liked }"
       :src="liked ? heartClicked : heartDefault"
@@ -18,10 +26,19 @@
 import { defineComponent, ref } from 'vue'
 import heartDefault from '@/assets/icons/HeartDefault.svg'
 import heartClicked from '@/assets/icons/HeartClicked.svg'
+import LikeDisabled from '@/assets/icons/LikeDisabled.svg'
+import LikeDefaultDisabled from '@/assets/icons/LikeDefaultDisabled.svg'
+
 import axios from 'axios'
 export default defineComponent({
   name: 'LikeButton',
   props: {
+    isDisabled: {
+      type: Boolean,
+      default() {
+        return false
+      },
+    },
     project: {
       type: Object,
       default() {
@@ -40,9 +57,7 @@ export default defineComponent({
     const liked = ref(false)
 
     liked.value = props.project.users_liked?.some((item) => {
-      console.log(item.id, JSON.parse(localStorage.getItem('user_id')))
-
-      return item.id == JSON.parse(localStorage.getItem('user_id'))
+      return item.id == JSON.parse(localStorage.getItem('user_id') || '')
     })
     return { liked }
   },
@@ -50,6 +65,8 @@ export default defineComponent({
     return {
       heartDefault,
       heartClicked,
+      LikeDisabled,
+      LikeDefaultDisabled,
     }
   },
   methods: {

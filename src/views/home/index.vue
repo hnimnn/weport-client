@@ -1,5 +1,6 @@
 <template>
   <div class="home pt-12 pb-32 2xl:px-36 lg:px-32 px-12">
+    <AvatarComponent />
     <HomeMenu />
     <section class="banner mb-4">
       <HomeBanner />
@@ -18,11 +19,13 @@ import { defineComponent } from 'vue'
 import HomeBanner from './components/HomeBanner.vue'
 import HomeInteracted from './components/HomeInteracted.vue'
 import HomePopular from './components/HomePopular.vue'
+
+import AvatarComponent from '@/components/Avatar.vue'
 import HomeMenu from '@/components/Menu.vue'
 
 export default defineComponent({
   name: 'HomePage',
-  components: { HomeBanner, HomeMenu, HomeInteracted, HomePopular },
+  components: { HomeBanner, HomeMenu, HomeInteracted, HomePopular, AvatarComponent },
   created() {
     localStorage.setItem('user_id', '1')
   },

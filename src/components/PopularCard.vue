@@ -2,7 +2,13 @@
   <div class="popular-card flex justify-center rounded-xl">
     <div>
       <div class="project-image relative">
-        <img class="project rounded-lg" :src="info.thumbnail" />
+        <img
+          class="project rounded-lg"
+          :src="info.thumbnail"
+          @error="(event:Event) => {
+            const imgElement = event.target as HTMLImageElement
+            imgElement.src = defaultImg}"
+        />
         <div class="card-option flex w-full items-center justify-between absolute">
           <SaveButton />
           <button class="try-btn w-24 h-8 bg-white text-sm font-bold">Try it out</button>
@@ -67,7 +73,7 @@ import eyes from '@/assets/icons/Eyes.svg'
 import ToolTip from '@/components/ToolTip.vue'
 import LikeButton from './LikeButton.vue'
 import SaveButton from './SaveButton.vue'
-
+import defaultImg from '@/assets/images/default-img.png'
 import { roundToK } from '@/utils/index'
 export default defineComponent({
   name: 'PopularCard',
@@ -95,6 +101,7 @@ export default defineComponent({
       avatarDefault,
       eyes,
       roundToK,
+      defaultImg,
     }
   },
   methods: {

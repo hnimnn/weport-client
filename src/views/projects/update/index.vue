@@ -12,32 +12,26 @@
                   >Upload Thumbnail</label
                 >
                 <div
-                  class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                  ref="upload"
+                  class="mt-2 drop-zone w-full h-80"
+                  @click="openFileInput"
+                  @dragover="handleDragOver"
+                  @drop="handleDrop"
+                  @dragleave="handleDragLeave"
                 >
-                  <div class="text-center">
-                    <svg
-                      class="mx-auto h-12 w-12 text-gray-300"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <div class="mt-4 flex text-sm leading-6 text-gray-600">
-                      <label
-                        for="file-upload"
-                        class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                      >
-                        <span class="color-text">Upload a file</span>
-                        <input id="file-upload" name="file-upload" type="file" class="sr-only" />
-                      </label>
-                      <p class="pl-1">or drag and drop</p>
-                    </div>
-                  </div>
+                  <div v-if="!thumbnail1" class="drop-zone__prompt">Click or drag to upload</div>
+                  <div
+                    v-else
+                    class="drop-zone__thumb"
+                    :style="{ backgroundImage: `url(${thumbnail1})` }"
+                    :data-label="fileName"
+                  ></div>
+                  <input
+                    ref="fileInput"
+                    class="drop-zone__input"
+                    type="file"
+                    @change="handleFileChange"
+                  />
                 </div>
               </div>
             </div>
@@ -54,6 +48,7 @@
                     class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
+                <span v-if="errors.name" class="text-rose-500">*{{ errors.name[0] }}</span>
               </div>
               <div class="col-span-full">
                 <label
@@ -150,7 +145,7 @@ export default defineComponent({
   name: 'UpdateProject',
   components: { HomeMenu, PopularCard },
   setup() {
-    const { project, updateProject, getProject } = useProjects()
+    const { project, errors, updateProject, getProject } = useProjects()
 
     const router = useRouter()
     const route = useRoute()
@@ -182,10 +177,63 @@ export default defineComponent({
         },
         project.value.id
       ).then(() => {
-        router.push({ name: 'ManageProject' })
+        console.log(errors.value)
+
+        if (!errors.value.name) {
+          router.push({ name: 'ManageProject' })
+        }
       })
     }
-    return { tag, project, handleAddTag, removeTag, handleSubmit }
+    return { tag, project, errors, handleAddTag, removeTag, handleSubmit }
+  },
+  data() {
+    return { thumbnail1: '', fileName: '' }
+  },
+  methods: {
+    openFileInput() {
+      this.$refs.fileInput.click()
+    },
+    handleFileChange(e) {
+      const file = e.target.files[0]
+      if (file) {
+        this.updateThumbnail(file)
+      }
+    },
+    handleDragOver(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.add('over-upload')
+    },
+    handleDragLeave(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.remove('over-upload')
+    },
+    handleDrop(e) {
+      e.preventDefault()
+      this.$refs.upload.classList.remove('over-upload')
+
+      const file = e.dataTransfer.files[0]
+      if (file) {
+        this.$refs.fileInput.files = e.dataTransfer.files
+        this.updateThumbnail(file)
+      }
+    },
+    updateThumbnail(file: File) {
+      this.fileName = file.name
+
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader()
+
+        reader.readAsDataURL(file)
+        var url = window.URL || window.webkitURL
+
+        reader.onload = () => {
+          this.thumbnail1 = reader.result
+          this.project.thumbnail = url.createObjectURL(file)
+        }
+      } else {
+        this.thumbnail1 = null
+      }
+    },
   },
 })
 </script>

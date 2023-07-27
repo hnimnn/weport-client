@@ -46,14 +46,14 @@
       <div class="w-full flex justify-end">
         <div class="flex justify-between w-28 mr-2">
           <div class="cursor-pointer flex items-center">
-            <LikeButton />
-            <ToolTip :content="info.like">
+            <LikeButton :project="info" :is-disabled="true" />
+            <ToolTip :content="info.users_liked?.length">
               <template #content>
-                <span class="text-base font-bold">{{ info.like || 0 }}</span>
+                <span class="text-base font-bold">{{ info.users_liked?.length || 0 }}</span>
               </template>
             </ToolTip>
           </div>
-
+          {{ console.log(info) }}
           <div class="cursor-pointer flex items-center">
             <ToolTip class="flex items-center" :content="info.view">
               <template #content>
@@ -84,15 +84,7 @@ export default defineComponent({
     info: {
       type: Object,
       default() {
-        return {
-          id: 0,
-          name: 'Empty',
-          thumbnail: '',
-          tags: [''],
-          like: 0,
-          view: 0,
-          description: '',
-        }
+        return {}
       },
     },
   },
