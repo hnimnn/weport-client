@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { ref } from 'vue'
-
+import { getDataOnCookies } from '@/utils'
 const instance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1',
+  baseURL: 'http://127.0.0.1:8000/api/auth/v1',
   withCredentials: false,
 })
 type Project = {
@@ -26,10 +26,12 @@ export default function useProjects() {
       })
       .catch((e) => console.log(e))
   }
-  const getProjectsByUserId = async (header) => {
+  const getProjectsByUserId = async () => {
     await instance
       .get('/user/projects', {
-        headers: header,
+        headers: {
+          Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+        },
       })
       .then((response) => {
         projects.value = response.data
@@ -39,11 +41,12 @@ export default function useProjects() {
   }
   const createProject = async (data: Project) => {
     try {
-      console.log(data)
-
       errors.value = false
       await instance.post('/projects', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+        },
       })
     } catch (error) {
       console.log(error)
@@ -52,8 +55,10 @@ export default function useProjects() {
   }
   const deleteProject = async (id: number) => {
     try {
-      await instance.delete('/projects/' + id)
-      await getProjectsByUserId({ user_id: JSON.parse(localStorage.getItem('user_id')) })
+      await instance.delete('/projects/' + id, {
+        headers: { Authorization: `Bearer ${getDataOnCookies('access_token')}` },
+      })
+      await getProjectsByUserId()
     } catch (error) {
       console.log(error)
     }
@@ -71,7 +76,10 @@ export default function useProjects() {
 
     await instance
       .post(`/projects/${id}?_method=PUT`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+        },
       })
       .then((response) => {
         console.log(response)

@@ -4,7 +4,7 @@
       <div class="project-image relative">
         <img
           class="project rounded-lg"
-          :src="info.thumbnail"
+          :src="info.thumbnail || defaultImg"
           @error="(event:Event) => {
             const imgElement = event.target as HTMLImageElement
             imgElement.src = defaultImg}"
@@ -30,25 +30,21 @@
       <div class="px-3 flex w-full justify-between">
         <div class="avatar relative flex items-center">
           <img
-            :src="info.user.avatar || avatarDefault"
+            :src="user.avatar || avatarDefault"
             class="inline-block h-10 w-10 rounded-full ring-2 ring-white mr-2"
             @error="handleAvatar"
           />
-          <ToolTip :content="info.user.name">
+          <ToolTip :content="user.name">
             <template #content>
               <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
-                {{
-                  info.user.name?.length > 12
-                    ? info.user.name?.slice(0, 12) + '...'
-                    : info.user.name
-                }}
+                {{ user.name?.length > 12 ? user.name?.slice(0, 12) + '...' : user.name }}
               </span>
             </template>
           </ToolTip>
         </div>
         <div class="flex justify-between w-32 mt-1">
           <div class="cursor-pointer flex items-center">
-            <LikeButton :like-number="likeNumber" :project="info" @like="incrementLikeNumber" />
+            <LikeButton :is-disabled="true" :like-number="likeNumber" :project="info" />
             <ToolTip :content="likeNumber">
               <template #content>
                 <span class="text-base font-bold">{{ roundToK(likeNumber) || 0 }}</span>
@@ -80,7 +76,7 @@ import SaveButton from './SaveButton.vue'
 import defaultImg from '@/assets/images/default-img.png'
 import { roundToK } from '@/utils/index'
 export default defineComponent({
-  name: 'PopularCard',
+  name: 'ProjectPreviewCard',
   components: {
     LikeButton,
     SaveButton,
@@ -95,9 +91,11 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const user = JSON.parse(localStorage.getItem('user') || '')
     const likeNumber = ref(props.info.users_liked?.length)
     return {
       likeNumber,
+      user,
     }
   },
   data() {
@@ -112,11 +110,6 @@ export default defineComponent({
     handleAvatar(event: Event) {
       const imgElement = event.target as HTMLImageElement
       imgElement.src = avatarDefault
-    },
-    incrementLikeNumber(isLike: boolean) {
-      console.log(this.likeNumber)
-      if (isLike) this.likeNumber++
-      else this.likeNumber--
     },
   },
 })

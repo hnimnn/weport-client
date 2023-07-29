@@ -17,16 +17,31 @@ const routes: Array<RouteRecordRaw> = [
     path: '/create-project',
     name: 'CreateProject',
     component: CreateProject,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        next()
+      } else next({ name: 'Signin' })
+    },
   },
   {
     path: '/manage-project',
     name: 'ManageProject',
     component: ManageProject,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        next()
+      } else next({ name: 'Signin' })
+    },
   },
   {
     path: '/update-project/:id?',
     name: 'UpdateProject',
     component: UpdateProject,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        next()
+      } else next({ name: 'Signin' })
+    },
   },
   {
     path: '/project-detail/:id?',

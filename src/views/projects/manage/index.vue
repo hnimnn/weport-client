@@ -1,5 +1,6 @@
 <template>
   <div class="manage-project pt-12 pb-32 2xl:px-36 lg:px-32 px-12 grid justify-items-center">
+    <Avatar />
     <HomeMenu />
     <div class="header syne-bold text-5xl">My Project</div>
     <div class="content w-full justify-between flex px-10 py-10">
@@ -19,11 +20,13 @@
 import { defineComponent } from 'vue'
 import MyProjectCard from '@/components/MyProjectCard.vue'
 import HomeMenu from '@/components/Menu.vue'
+import Avatar from '@/components/Avatar.vue'
 export default defineComponent({
   name: 'ManageProject',
   components: {
     MyProjectCard,
     HomeMenu,
+    Avatar,
   },
 })
 </script>
@@ -36,7 +39,9 @@ function handleDeleteProject(id: number) {
   deleteProject(id)
 }
 onMounted(() => {
-  getProjectsByUserId({ user_id: JSON.parse(localStorage.getItem('user_id') || '') })
+  if (JSON.parse(localStorage.getItem('user'))) {
+    getProjectsByUserId({ user_id: JSON.parse(localStorage.getItem('user') || '').id })
+  }
 })
 </script>
 

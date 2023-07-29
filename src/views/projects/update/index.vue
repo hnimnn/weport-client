@@ -1,5 +1,6 @@
 <template>
   <div class="manage-project pt-12 pb-32 2xl:px-36 lg:px-32 px-12 grid justify-items-center">
+    <Avatar />
     <HomeMenu />
     <div class="header syne-bold text-5xl">Update Project</div>
     <div class="content w-full justify-between flex px-10">
@@ -137,13 +138,13 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref, Ref } from 'vue'
 import HomeMenu from '@/components/Menu.vue'
-import PopularCard from '@/components/PopularCard'
+import PopularCard from '@/components/PopularCard.vue'
 import useProjects from '@/stores/project'
 import { useRouter, useRoute } from 'vue-router'
-
+import Avatar from '@/components/Avatar.vue'
 export default defineComponent({
   name: 'UpdateProject',
-  components: { HomeMenu, PopularCard },
+  components: { HomeMenu, PopularCard, Avatar },
   setup() {
     const { project, errors, updateProject, getProject } = useProjects()
 

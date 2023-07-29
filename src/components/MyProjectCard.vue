@@ -4,7 +4,14 @@
   >
     <router-link :to="'/update-project/' + info.id">
       <div class="w-32 h-32 bg-white">
-        <img :src="info.thumbnail" alt="project" class="rounded-xl object-cover w-full h-full" />
+        <img
+          :src="info.thumbnail || defaultImg"
+          alt="project"
+          class="rounded-xl object-cover w-full h-full"
+          @error="(event:Event) => {
+            const imgElement = event.target as HTMLImageElement
+            imgElement.src = defaultImg}"
+        />
       </div>
     </router-link>
     <div class="w-full h-full flex justify-between md:w-2/3 bg-white flex-col space-y-2 p-3">
@@ -73,7 +80,7 @@ import { defineComponent } from 'vue'
 import eyes from '@/assets/icons/Eyes.svg'
 import LikeButton from '@/components/LikeButton.vue'
 import ToolTip from '@/components/ToolTip.vue'
-
+import defaultImg from '@/assets/images/default-img.png'
 export default defineComponent({
   name: 'ManageProject',
   components: {
@@ -94,6 +101,7 @@ export default defineComponent({
     return {
       eyes,
       isOpenEdit: false,
+      defaultImg,
     }
   },
 })

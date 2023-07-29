@@ -16,3 +16,21 @@ export const roundToK = (num: number) => {
 
   return num
 }
+export const getDataOnCookies = (name: string) => {
+  const newName = name + '='
+  let token = null
+
+  const decodedCookie = decodeURIComponent(document.cookie)
+  const cookieArray = decodedCookie.split(';')
+
+  for (let i = 0; i < cookieArray.length; i++) {
+    let cookie = cookieArray[i]
+    while (cookie.charAt(0) === ' ') {
+      cookie = cookie.substring(1)
+    }
+    if (cookie.indexOf(newName) === 0) {
+      token = cookie.substring(newName.length, cookie.length)
+    }
+  }
+  return token
+}

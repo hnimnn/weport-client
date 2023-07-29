@@ -1,6 +1,6 @@
 <template>
   <div class="home pt-12 pb-32 2xl:px-36 lg:px-32 px-12">
-    <AvatarComponent />
+    <Avatar />
     <HomeMenu />
     <section class="banner mb-4">
       <HomeBanner />
@@ -20,15 +20,12 @@ import HomeBanner from './components/HomeBanner.vue'
 import HomeInteracted from './components/HomeInteracted.vue'
 import HomePopular from './components/HomePopular.vue'
 
-import AvatarComponent from '@/components/Avatar.vue'
+import Avatar from '@/components/Avatar.vue'
 import HomeMenu from '@/components/Menu.vue'
 
 export default defineComponent({
   name: 'HomePage',
-  components: { HomeBanner, HomeMenu, HomeInteracted, HomePopular, AvatarComponent },
-  created() {
-    localStorage.setItem('user_id', '1')
-  },
+  components: { HomeBanner, HomeMenu, HomeInteracted, HomePopular, Avatar },
 })
 </script>
 <style lang="scss">

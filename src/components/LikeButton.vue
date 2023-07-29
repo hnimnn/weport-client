@@ -1,5 +1,4 @@
 <template>
-  {{ console.log(isDisabled) }}
   <div v-if="isDisabled" class="like-button">
     <img
       :class="{ clicked: liked }"
@@ -28,7 +27,8 @@ import heartDefault from '@/assets/icons/HeartDefault.svg'
 import heartClicked from '@/assets/icons/HeartClicked.svg'
 import LikeDisabled from '@/assets/icons/LikeDisabled.svg'
 import LikeDefaultDisabled from '@/assets/icons/LikeDefaultDisabled.svg'
-
+import { useRouter } from 'vue-router'
+import { getDataOnCookies } from '@/utils'
 import axios from 'axios'
 export default defineComponent({
   name: 'LikeButton',
@@ -55,11 +55,34 @@ export default defineComponent({
   emits: ['like'],
   setup(props) {
     const liked = ref(false)
+    const router = useRouter()
+    async function toggleLike() {
+      if (getDataOnCookies('access_token')) {
+        liked.value = !liked.value
+        await axios
+          .post(
+            `http://127.0.0.1:8000/api/auth/v1/projects/${this.project.id}/like`,
+            {},
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
 
-    liked.value = props.project.users_liked?.some((item) => {
-      return item.id == JSON.parse(localStorage.getItem('user_id') || '')
+                Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response)
+          })
+      } else {
+        router.push({ name: 'Signin' })
+      }
+    }
+    liked.value = props.project?.users_liked?.some((item) => {
+      if (localStorage.getItem('user'))
+        return item.id == JSON.parse(localStorage.getItem('user') || '').id
     })
-    return { liked }
+    return { liked, toggleLike }
   },
   data() {
     return {
@@ -68,20 +91,6 @@ export default defineComponent({
       LikeDisabled,
       LikeDefaultDisabled,
     }
-  },
-  methods: {
-    async toggleLike() {
-      this.liked = !this.liked
-      await axios
-        .post(
-          `http://127.0.0.1:8000/api/v1/projects/${this.project.id}/like`,
-          { user_id: 1 },
-          { headers: { 'Content-Type': 'multipart/form-data' } }
-        )
-        .then((response) => {
-          console.log(response)
-        })
-    },
   },
 })
 </script>
