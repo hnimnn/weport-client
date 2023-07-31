@@ -78,6 +78,7 @@
       <div class="modal-avatar w-full px-4 py-3 text-sm text-gray-900 dark:text-white">
         <div class="font-bold flex justify-center w-full">{{ user?.name }}</div>
         <div class="font-medium truncate">{{ user?.email }}</div>
+        <div class="flex justify-center">{{ user?.cash }}</div>
       </div>
       <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="avatarButton">
         <li class="w-full">

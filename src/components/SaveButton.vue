@@ -6,7 +6,7 @@
       viewBox="0 0 21 29"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      @click="toggleSave()"
+      @click="handleSave()"
     >
       <g id="Vector">
         <path
@@ -40,7 +40,7 @@
       height="29"
       viewBox="0 0 21 29"
       xmlns="http://www.w3.org/2000/svg"
-      @click="toggleSave()"
+      @click="handleSave()"
     >
       <path
         d="M19.9273 0H1.07881C0.484238 0 0 0.473865 0 1.0557V26.9443C0 27.862 1.10946 28.3419 1.8021 27.7241L9.77671 20.6521C10.1874 20.2862 10.8126 20.2862 11.2233 20.6521L19.1979 27.7241C19.8905 28.3359 21 27.856 21 26.9443V1.0557C21 0.473865 20.5158 0 19.9212 0H19.9273Z"
@@ -50,20 +50,62 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { getDataOnCookies } from '@/utils'
+import axios from 'axios'
+import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'SaveButton',
+  props: {
+    project: {
+      type: Object,
+      default() {
+        return {}
+      },
+    },
+  },
+  setup(props) {
+    const save = ref(false)
+    const router = useRouter()
+    async function handleSave() {
+      if (getDataOnCookies('access_token')) {
+        save.value = !save.value
+        await axios
+          .post(
+            `http://127.0.0.1:8000/api/auth/v1/projects/${props.project.id}/save`,
+            {},
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+
+                Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+              },
+            }
+          )
+          .then((response) => {
+            console.log(response)
+          })
+      } else {
+        router.push({ name: 'Signin' })
+      }
+    }
+    save.value = props.project?.users_liked?.some((item) => {
+      if (localStorage.getItem('user'))
+        return item.id == JSON.parse(localStorage.getItem('user') || '').id
+    })
+    return { save, handleSave }
+  },
   data() {
     return {
       saved: false,
     }
   },
-  methods: {
-    toggleSave() {
-      this.saved = !this.saved
-    },
-  },
+  // methods: {
+  //   toggleSave() {
+  //     this.saved = !this.saved
+  //   },
+  // },
 })
 </script>
 

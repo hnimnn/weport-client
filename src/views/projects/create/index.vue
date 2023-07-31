@@ -20,11 +20,13 @@
                   @drop="handleDrop"
                   @dragleave="handleDragLeave"
                 >
-                  <div v-if="!thumbnail1" class="drop-zone__prompt">Click or drag to upload</div>
+                  <div v-if="!previewThumbnail" class="drop-zone__prompt">
+                    Click or drag to upload
+                  </div>
                   <div
                     v-else
                     class="drop-zone__thumb"
-                    :style="{ backgroundImage: `url(${thumbnail1})` }"
+                    :style="{ backgroundImage: `url(${previewThumbnail})` }"
                     :data-label="fileName"
                   ></div>
                   <input
@@ -38,17 +40,37 @@
             </div>
 
             <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div class="col-span-full">
-                <label for="street-address" class="block text-lg font-bold leading-6 text-gray-900"
-                  >Project Name</label
-                >
-                <div class="mt-2">
-                  <input
-                    v-model="project.name"
-                    type="text"
-                    class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  />
-                  <span v-if="errors.name" class="text-rose-500">*{{ errors.name[0] }}</span>
+              <div class="col-span-full flex justify-between">
+                <div class="w-2/3">
+                  <label
+                    for="street-address"
+                    class="block text-lg font-bold leading-6 text-gray-900"
+                    >Project Name</label
+                  >
+                  <div class="mt-2">
+                    <input
+                      v-model="project.name"
+                      type="text"
+                      class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                    <span v-if="errors.name" class="text-rose-500">*{{ errors.name[0] }}</span>
+                  </div>
+                </div>
+                <div class="w-1/3">
+                  <label
+                    for="street-address"
+                    class="block text-lg font-bold leading-6 text-gray-900"
+                    >Price</label
+                  >
+                  <div class="mt-2">
+                    <input
+                      v-model="project.price"
+                      step="0.01"
+                      type="number"
+                      class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                    <span v-if="errors.price" class="text-rose-500">*{{ errors.price[0] }}</span>
+                  </div>
                 </div>
               </div>
               <div class="col-span-full">
@@ -158,6 +180,7 @@ export default defineComponent({
       name: '',
       description: '',
       tags: [],
+      price: 0,
     })
     function handleAddTag() {
       if (tag.value !== '') {
@@ -172,9 +195,10 @@ export default defineComponent({
       createProject({
         user_id: JSON.parse(localStorage.getItem('user') || '').id,
         name: project.value.name,
+        price: project.value.price,
         description: project.value.description,
         tags: project.value.tags.join(', '),
-        thumbnail: project.value.thumbnail,
+        thumbnail: this.thumbnailUpload,
       }).then(() => {
         console.log(errors)
 
@@ -187,8 +211,9 @@ export default defineComponent({
   },
   data() {
     return {
-      thumbnail1: '',
+      previewThumbnail: '',
       fileName: '',
+      thumbnailUpload: '',
     }
   },
   methods: {
@@ -221,7 +246,6 @@ export default defineComponent({
     },
     updateThumbnail(file: File) {
       this.fileName = file.name
-
       if (file.type.startsWith('image/')) {
         const reader = new FileReader()
 
@@ -229,11 +253,12 @@ export default defineComponent({
         var url = window.URL || window.webkitURL
 
         reader.onload = () => {
-          this.thumbnail1 = reader.result
+          this.previewThumbnail = reader.result
+          this.thumbnailUpload = file
           this.project.thumbnail = url.createObjectURL(file)
         }
       } else {
-        this.thumbnail1 = null
+        this.previewThumbnail = null
       }
     },
   },

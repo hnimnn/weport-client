@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import heartDefault from '@/assets/icons/HeartDefault.svg'
 import heartClicked from '@/assets/icons/HeartClicked.svg'
 import LikeDisabled from '@/assets/icons/LikeDisabled.svg'
@@ -82,6 +82,16 @@ export default defineComponent({
       if (localStorage.getItem('user'))
         return item.id == JSON.parse(localStorage.getItem('user') || '').id
     })
+    watch(
+      () => props.project, // Watch the `project` prop
+      (newProject) => {
+        // Perform the logic to check if the user has liked the project
+        liked.value = newProject?.users_liked?.some((item) => {
+          if (localStorage.getItem('user'))
+            return item.id == JSON.parse(localStorage.getItem('user') || '').id
+        })
+      }
+    )
     return { liked, toggleLike }
   },
   data() {

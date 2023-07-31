@@ -10,7 +10,7 @@
             imgElement.src = defaultImg}"
         />
         <div class="card-option flex w-full items-center justify-between absolute">
-          <SaveButton />
+          <SaveButton :project="info" />
           <button class="try-btn w-24 h-8 bg-white text-sm font-bold">Try it out</button>
         </div>
         <button class="follow-btn">FOLLOW</button>
@@ -19,7 +19,7 @@
       <div class="p-2 mb-1">
         <div class="text-lg font-bold h-7">
           <router-link :to="'/project-detail/' + info.id">
-            {{ info.name }}
+            {{ info?.name }}
           </router-link>
         </div>
         <div v-if="typeof info.tags === 'string'" class="text-xs font-bold h-4">
@@ -30,17 +30,17 @@
       <div class="px-3 flex w-full justify-between">
         <div class="avatar relative flex items-center">
           <img
-            :src="info.user.avatar || avatarDefault"
+            :src="info.user?.avatar || avatarDefault"
             class="inline-block h-10 w-10 rounded-full ring-2 ring-white mr-2"
             @error="handleAvatar"
           />
-          <ToolTip :content="info.user.name">
+          <ToolTip :content="info.user?.name">
             <template #content>
               <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
                 {{
-                  info.user.name?.length > 12
-                    ? info.user.name?.slice(0, 12) + '...'
-                    : info.user.name
+                  info.user?.name?.length > 12
+                    ? info.user?.name?.slice(0, 12) + '...'
+                    : info.user?.name
                 }}
               </span>
             </template>
@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 import avatarDefault from '@/assets/images/avatar-default.jpg'
 import eyes from '@/assets/icons/Eyes.svg'
 import ToolTip from '@/components/ToolTip.vue'
@@ -94,12 +94,21 @@ export default defineComponent({
       },
     },
   },
+
   setup(props) {
     const likeNumber = ref(props.info.users_liked?.length)
+    watch(
+      () => props.info, // Watch the `project` prop
+      (newInfo) => {
+        // Perform the logic to check if the user has liked the project
+        likeNumber.value = newInfo.users_liked?.length
+      }
+    )
     return {
       likeNumber,
     }
   },
+
   data() {
     return {
       avatarDefault,
@@ -114,7 +123,6 @@ export default defineComponent({
       imgElement.src = avatarDefault
     },
     incrementLikeNumber(isLike: boolean) {
-      console.log(this.likeNumber)
       if (isLike) this.likeNumber++
       else this.likeNumber--
     },

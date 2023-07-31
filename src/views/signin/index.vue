@@ -122,7 +122,6 @@ export default defineComponent({
         .then((response) => {
           document.cookie = `access_token=${response.data.access_token}; max-age=${response.data.expires_in}; path=/;`
           localStorage.setItem('user', JSON.stringify(response.data.user))
-          console.log(JSON.parse(localStorage.getItem('user')))
           router.push({ name: 'Home' })
         })
         .catch((e) => console.log(e))

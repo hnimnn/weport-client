@@ -42,6 +42,7 @@ export default function useProjects() {
   const createProject = async (data: Project) => {
     try {
       errors.value = false
+      console.log(data)
       await instance.post('/projects', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
