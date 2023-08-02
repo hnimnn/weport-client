@@ -36,13 +36,15 @@
           />
           <ToolTip :content="info.user?.name">
             <template #content>
-              <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
-                {{
-                  info.user?.name?.length > 12
-                    ? info.user?.name?.slice(0, 12) + '...'
-                    : info.user?.name
-                }}
-              </span>
+              <router-link :to="'/profile/' + info.user.id">
+                <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
+                  {{
+                    info.user?.name?.length > 12
+                      ? info.user?.name?.slice(0, 12) + '...'
+                      : info.user?.name
+                  }}
+                </span>
+              </router-link>
             </template>
           </ToolTip>
         </div>

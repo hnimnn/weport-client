@@ -1,11 +1,14 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from 'vue-router'
 import HomePage from '../views/home/index.vue'
+import ProfilePage from '../views/profile/Profile.vue'
+import UpdateProfile from '../views/profile/UpdateProfile.vue'
 import Signin from '../views/signin/index.vue'
 import Signup from '../views/signup/index.vue'
 import CreateProject from '../views/projects/create/index.vue'
 import ManageProject from '../views/projects/manage/index.vue'
 import ManageProjectAdmin from '../views/admin/ManageProject.vue'
 import UpdateProject from '../views/projects/update/index.vue'
+import SavedProject from '../views/projects/saved/index.vue'
 import ProjectDetail from '../views/projects/detail/index.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -14,6 +17,22 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: HomePage,
   },
+  {
+    path: '/profile/:id?',
+    name: 'Profile',
+    component: ProfilePage,
+  },
+  {
+    path: '/update-profile',
+    name: 'UpdateProfile',
+    component: UpdateProfile,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        next()
+      } else next({ name: 'Signin' })
+    },
+  },
+
   {
     path: '/create-project',
     name: 'CreateProject',
@@ -43,6 +62,17 @@ const routes: Array<RouteRecordRaw> = [
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('user')) {
         next()
+      } else next({ name: 'Signin' })
+    },
+  },
+  {
+    path: '/saved-project',
+    name: 'SavedProject',
+    component: SavedProject,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        if (JSON.parse(localStorage.getItem('user') || '')?.role === 2) next()
+        else next({ name: 'Home' })
       } else next({ name: 'Signin' })
     },
   },

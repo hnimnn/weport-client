@@ -11,6 +11,8 @@ type Project = {
   description: string
   user_id: number
   tags: string
+  source: string
+  price: number
 }
 export default function useProjects() {
   const projects = ref([])

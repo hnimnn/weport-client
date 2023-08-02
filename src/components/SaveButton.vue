@@ -1,5 +1,5 @@
 <template>
-  <span v-if="saved" class="cursor-pointer">
+  <span v-if="save" class="cursor-pointer">
     <svg
       width="21"
       height="29"
@@ -71,6 +71,8 @@ export default defineComponent({
     async function handleSave() {
       if (getDataOnCookies('access_token')) {
         save.value = !save.value
+        console.log(save.value)
+
         await axios
           .post(
             `http://127.0.0.1:8000/api/auth/v1/projects/${props.project.id}/save`,
@@ -90,7 +92,7 @@ export default defineComponent({
         router.push({ name: 'Signin' })
       }
     }
-    save.value = props.project?.users_liked?.some((item) => {
+    save.value = props.project?.users_saved?.some((item) => {
       if (localStorage.getItem('user'))
         return item.id == JSON.parse(localStorage.getItem('user') || '').id
     })

@@ -36,10 +36,30 @@
                     @change="handleFileChange"
                   />
                 </div>
+                <span v-if="errors.thumbnail" class="text-rose-500"
+                  >*{{ errors.thumbnail[0] }}</span
+                >
               </div>
             </div>
 
             <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="col-span-full">
+                <div class="w-full">
+                  <label
+                    for="street-address"
+                    class="block text-lg font-bold leading-6 text-gray-900"
+                    >Project Source</label
+                  >
+                  <div class="mt-2">
+                    <input
+                      v-model="project.source"
+                      type="text"
+                      class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                    <span v-if="errors.source" class="text-rose-500">*{{ errors.source[0] }}</span>
+                  </div>
+                </div>
+              </div>
               <div class="col-span-full flex justify-between">
                 <div class="w-2/3">
                   <label
@@ -180,6 +200,7 @@ export default defineComponent({
       name: '',
       description: '',
       tags: [],
+      source: '',
       price: 0,
     })
     function handleAddTag() {
@@ -195,6 +216,7 @@ export default defineComponent({
       createProject({
         user_id: JSON.parse(localStorage.getItem('user') || '').id,
         name: project.value.name,
+        source: project.value.source,
         price: project.value.price,
         description: project.value.description,
         tags: project.value.tags.join(', '),

@@ -78,7 +78,7 @@
       <div class="modal-avatar w-full px-4 py-3 text-sm text-gray-900 dark:text-white">
         <div class="font-bold flex justify-center w-full">{{ user?.name }}</div>
         <div class="font-medium truncate flex justify-center">{{ user?.email }}</div>
-        <div class="flex justify-center">{{ user?.cash.toFixed(2) }}</div>
+        <div class="flex justify-center">{{ user?.cash?.toFixed(2) || 0 }}</div>
       </div>
       <ul
         v-if="user?.role === 2"
@@ -87,7 +87,7 @@
       >
         <li class="w-full">
           <router-link
-            to="#"
+            :to="'/profile/' + user.id"
             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white w-full"
           >
             Profile
@@ -107,7 +107,7 @@
           >
         </li>
         <li>
-          <router-link to="/create-project" class="block px-4 py-2 hover:bg-gray-100 w-full"
+          <router-link to="/saved-project" class="block px-4 py-2 hover:bg-gray-100 w-full"
             >Saved</router-link
           >
         </li>
@@ -158,12 +158,12 @@ export default defineComponent({
   setup() {
     const isOpen = ref(false)
     const isOpenLogin = ref(true)
-
     let user = null
+    const router = useRouter()
+
     if (localStorage.getItem('user')) {
       user = JSON.parse(localStorage.getItem('user') || '')
     }
-    const router = useRouter()
 
     const handleClickOutside = (event) => {
       if (!event.target.parentElement?.classList.contains('modal-avatar')) {

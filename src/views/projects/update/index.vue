@@ -36,10 +36,30 @@
                     @change="handleFileChange"
                   />
                 </div>
+                <span v-if="errors.thumbnail" class="text-rose-500"
+                  >*{{ errors.thumbnail[0] }}</span
+                >
               </div>
             </div>
 
             <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div class="col-span-full">
+                <div class="w-full">
+                  <label
+                    for="street-address"
+                    class="block text-lg font-bold leading-6 text-gray-900"
+                    >Project Source</label
+                  >
+                  <div class="mt-2">
+                    <input
+                      v-model="project.source"
+                      type="text"
+                      class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    />
+                    <span v-if="errors.source" class="text-rose-500">*{{ errors.source[0] }}</span>
+                  </div>
+                </div>
+              </div>
               <div class="col-span-full flex justify-between">
                 <div class="w-2/3">
                   <label
@@ -164,21 +184,32 @@ import PopularCard from '@/components/PopularCard.vue'
 import useProjects from '@/stores/project'
 import { useRouter, useRoute } from 'vue-router'
 import Avatar from '@/components/Avatar.vue'
+import axios from 'axios'
+import { getDataOnCookies } from '@/utils'
 export default defineComponent({
   name: 'UpdateProject',
   components: { HomeMenu, PopularCard, Avatar },
   setup() {
-    const { project, errors, updateProject, getProject } = useProjects()
+    const { project, errors, updateProject } = useProjects()
     const router = useRouter()
     const route = useRoute()
 
     const tag: Ref<string> = ref('')
-    onMounted(() =>
-      getProject(route.params.id).then(() => {
-        if (!project.value.tags) {
-          project.value.tags = []
-        } else project.value.tags = project.value.tags?.split(',')
-      })
+    onMounted(
+      async () =>
+        await axios
+          .get(`http://127.0.0.1:8000/api/auth/v1/projects/${route.params.id}/data`, {
+            headers: {
+              Authorization: `Bearer ${getDataOnCookies('access_token')}`,
+            },
+          })
+          .then((response) => {
+            project.value = response.data
+            if (!project.value.tags) {
+              project.value.tags = []
+            } else project.value.tags = project.value.tags?.split(',')
+          })
+          .catch((e) => console.log(e))
     )
 
     function handleAddTag() {
@@ -200,6 +231,7 @@ export default defineComponent({
           description: project.value.description,
           tags: project.value.tags?.join(', '),
           price: project.value.price,
+          source: project.value.source,
           status: 'wait',
           thumbnail: this.thumbnailUpload,
         },

@@ -27,12 +27,13 @@
                 <input
                   id="email"
                   v-model="email"
-                  type="email"
                   name="email"
                   class="color-outline focus:outline-none bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="example@gmail.com"
-                  required=""
                 />
+                <span v-if="errors?.email" class="text-xs text-rose-500 h-fit"
+                  >*{{ errors.email[0] }}</span
+                >
               </div>
               <div>
                 <label
@@ -47,8 +48,10 @@
                   name="password"
                   placeholder="••••••••"
                   class="color-outline focus:outline-none bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  required=""
                 />
+                <span v-if="errors?.password" class="text-xs text-rose-500 h-fit"
+                  >*{{ errors.password[0] }}</span
+                >
               </div>
               <div class="flex items-center float-right justify-between">
                 <!-- <div class="flex items-start">
@@ -94,19 +97,24 @@
       </div>
     </section>
   </div>
+  <vue-basic-alert ref="alert" :duration="300" :close-in="5000" />
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import logoSignin from '@/assets/images/logo-signin.png'
+import VueBasicAlert from 'vue-basic-alert'
 import axios from 'axios'
 export default defineComponent({
   name: 'SigninPage',
+  components: { VueBasicAlert },
   setup() {
     const router = useRouter()
     const email = ref('')
     const password = ref('')
+    const errors = ref({})
+
     async function handleLogin() {
       await axios
         .post(
@@ -124,9 +132,15 @@ export default defineComponent({
           localStorage.setItem('user', JSON.stringify(response.data.user))
           router.push({ name: 'Home' })
         })
-        .catch((e) => console.log(e))
+        .catch((e) => {
+          if (e.response.data.error == 'Unauthorized') {
+            errors.value.password = ['Email or Password invald']
+          } else errors.value = e.response.data
+
+          console.log(e)
+        })
     }
-    return { email, password, handleLogin }
+    return { email, password, errors, handleLogin }
   },
   data() {
     return {

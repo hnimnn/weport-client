@@ -68,7 +68,7 @@
                   placeholder="example@gmail.com"
                 />
                 <span v-if="errors?.email" class="text-xs text-rose-500 h-fit"
-                  >*{{ errors.email }}</span
+                  >*{{ errors.email[0] }}</span
                 >
               </div>
               <div>
@@ -180,6 +180,7 @@ export default defineComponent({
       } else return true
     }
     async function handleSubmit() {
+      errors.value = {}
       if (validation()) {
         await axios
           .post(
@@ -202,7 +203,7 @@ export default defineComponent({
           })
           .catch((e) => {
             console.log(e)
-            errors.value = e.response.data
+            errors.value = e.response.data.errors
           })
       }
     }
