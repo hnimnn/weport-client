@@ -20,11 +20,13 @@
                   @drop="handleDrop"
                   @dragleave="handleDragLeave"
                 >
-                  <div v-if="!thumbnail1" class="drop-zone__prompt">Click or drag to upload</div>
+                  <div v-if="!previewThumbnail" class="drop-zone__prompt">
+                    Click or drag to upload
+                  </div>
                   <div
                     v-else
                     class="drop-zone__thumb"
-                    :style="{ backgroundImage: `url(${thumbnail1})` }"
+                    :style="{ backgroundImage: `url(${previewThumbnail})` }"
                     :data-label="fileName"
                   ></div>
                   <input
@@ -197,8 +199,9 @@ export default defineComponent({
           name: project.value.name,
           description: project.value.description,
           tags: project.value.tags?.join(', '),
-          thumbnail: project.value.thumbnail,
           price: project.value.price,
+          status: 'wait',
+          thumbnail: this.thumbnailUpload,
         },
         project.value.id
       ).then(() => {
@@ -212,7 +215,11 @@ export default defineComponent({
     return { tag, project, errors, handleAddTag, removeTag, handleSubmit }
   },
   data() {
-    return { thumbnail1: '', fileName: '' }
+    return {
+      previewThumbnail: '',
+      fileName: '',
+      thumbnailUpload: '',
+    }
   },
   methods: {
     openFileInput() {
@@ -252,11 +259,12 @@ export default defineComponent({
         var url = window.URL || window.webkitURL
 
         reader.onload = () => {
-          this.thumbnail1 = reader.result
+          this.previewThumbnail = reader.result
+          this.thumbnailUpload = file
           this.project.thumbnail = url.createObjectURL(file)
         }
       } else {
-        this.thumbnail1 = null
+        this.previewThumbnail = null
       }
     },
   },

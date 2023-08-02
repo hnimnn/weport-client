@@ -162,18 +162,18 @@ export default defineComponent({
     const account = ref({})
     const errors = ref({})
     function validation() {
-      const emailPattern =
-        /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.(-?[a-zA-Z0-9])+$/
+      // const emailPattern =
+      //   /^[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-*\.?[a-zA-Z0-9])*\.(-?[a-zA-Z0-9])+$/
 
-      if (account.value.email === '') {
-        errors.value.email = 'Invalid Email'
-        return false
-      } else if (!emailPattern.test(account.value.email)) {
-        errors.value.email = 'Invalid Email'
-        return false
-      } else {
-        errors.value.email = ''
-      }
+      // if (account.value.email === '') {
+      //   errors.value.email = 'Invalid Email'
+      //   return false
+      // } else if (!emailPattern.test(account.value.email)) {
+      //   errors.value.email = 'Invalid Email'
+      //   return false
+      // } else {
+      //   errors.value.email = ''
+      // }
       if (account.value.confirmPassword !== account.value.password) {
         errors.value.confirmPassword = 'Confirm password not match'
         return false

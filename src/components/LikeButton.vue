@@ -74,6 +74,7 @@ export default defineComponent({
           .then((response) => {
             console.log(response)
           })
+          .catch((e) => console.log(e))
       } else {
         router.push({ name: 'Signin' })
       }

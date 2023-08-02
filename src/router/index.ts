@@ -4,6 +4,7 @@ import Signin from '../views/signin/index.vue'
 import Signup from '../views/signup/index.vue'
 import CreateProject from '../views/projects/create/index.vue'
 import ManageProject from '../views/projects/manage/index.vue'
+import ManageProjectAdmin from '../views/admin/ManageProject.vue'
 import UpdateProject from '../views/projects/update/index.vue'
 import ProjectDetail from '../views/projects/detail/index.vue'
 
@@ -19,7 +20,8 @@ const routes: Array<RouteRecordRaw> = [
     component: CreateProject,
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('user')) {
-        next()
+        if (JSON.parse(localStorage.getItem('user') || '')?.role === 2) next()
+        else next({ name: 'Home' })
       } else next({ name: 'Signin' })
     },
   },
@@ -29,7 +31,8 @@ const routes: Array<RouteRecordRaw> = [
     component: ManageProject,
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('user')) {
-        next()
+        if (JSON.parse(localStorage.getItem('user') || '')?.role === 2) next()
+        else next({ name: 'Home' })
       } else next({ name: 'Signin' })
     },
   },
@@ -57,6 +60,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/signup',
     name: 'Signup',
     component: Signup,
+  },
+
+  // Admin ----------------
+  {
+    path: '/admin/manage-project',
+    name: 'ManageProjectAdmin',
+    component: ManageProjectAdmin,
+    beforeEnter: (to, from, next) => {
+      if (localStorage.getItem('user')) {
+        if (JSON.parse(localStorage.getItem('user') || '')?.role === 1) next()
+        else next({ name: 'Home' })
+      } else next({ name: 'Signin' })
+    },
   },
 ]
 
