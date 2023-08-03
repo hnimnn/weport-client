@@ -33,6 +33,7 @@
                     ref="fileInput"
                     class="drop-zone__input"
                     type="file"
+                    accept="image/png, image/jpeg"
                     @change="handleFileChange"
                   />
                 </div>
@@ -184,8 +185,8 @@ import PopularCard from '@/components/PopularCard.vue'
 import useProjects from '@/stores/project'
 import { useRouter, useRoute } from 'vue-router'
 import Avatar from '@/components/Avatar.vue'
-import axios from 'axios'
 import { getDataOnCookies } from '@/utils'
+import { request } from '@/utils/request'
 export default defineComponent({
   name: 'UpdateProject',
   components: { HomeMenu, PopularCard, Avatar },
@@ -197,8 +198,8 @@ export default defineComponent({
     const tag: Ref<string> = ref('')
     onMounted(
       async () =>
-        await axios
-          .get(`http://127.0.0.1:8000/api/auth/v1/projects/${route.params.id}/data`, {
+        await request
+          .get(`/projects/${route.params.id}/data`, {
             headers: {
               Authorization: `Bearer ${getDataOnCookies('access_token')}`,
             },
@@ -226,20 +227,20 @@ export default defineComponent({
     function handleSubmit() {
       updateProject(
         {
-          user_id: 1,
+          user_id: JSON.parse(localStorage.getItem('user') || '').id,
           name: project.value.name,
           description: project.value.description,
           tags: project.value.tags?.join(', '),
           price: project.value.price,
           source: project.value.source,
           status: 'wait',
-          thumbnail: this.thumbnailUpload,
+          thumbnail: this.thumbnailUpload || project.value.thumbnail,
         },
         project.value.id
       ).then(() => {
         console.log(errors.value)
 
-        if (!errors.value.name) {
+        if (!errors.value) {
           router.push({ name: 'ManageProject' })
         }
       })

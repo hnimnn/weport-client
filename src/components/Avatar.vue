@@ -4,7 +4,7 @@
   >
     <div class="modal-avatar relative flex justify-center">
       <div
-        v-if="!getDataOnCookies('access_token')"
+        v-if="!isLogin"
         class="w-16 h-16 bg-neutral-300 rounded-full"
         @click="() => (isOpenLogin = !isOpenLogin)"
       ></div>
@@ -12,7 +12,7 @@
         <img
           id="avatarButton"
           type="button"
-          class="w-16 h-16 stroke-cyan-500 rounded-full cursor-pointer"
+          class="w-16 h-16 stroke-cyan-500 rounded-full cursor-pointer object-cover"
           :src="user?.avatar || defaultAvatar"
           @error="handleAvatar"
           @click="() => (isOpen = !isOpen)"
@@ -25,7 +25,7 @@
 
     <!-- Dropdown menu -->
     <div
-      :class="{ hidden: !isOpenLogin || getDataOnCookies('access_token') }"
+      :class="{ hidden: !isOpenLogin || isLogin }"
       class="absolute flex flex-col py-4 px-6 bg-white hover:shodow-lg rounded-2xl right-16 top-20 w-64 h-32 shadow-[rgba(6,_24,_44,_0.4)_0px_0px_0px_2px,_rgba(6,_24,_44,_0.65)_0px_4px_6px_-1px,_rgba(255,_255,_255,_0.08)_0px_1px_0px_inset]"
     >
       <div class="items-center justify-between">
@@ -158,13 +158,21 @@ export default defineComponent({
   setup() {
     const isOpen = ref(false)
     const isOpenLogin = ref(true)
+    const isLogin = ref(false)
+
     let user = null
     const router = useRouter()
 
     if (localStorage.getItem('user')) {
       user = JSON.parse(localStorage.getItem('user') || '')
     }
-
+    if (!getDataOnCookies('refresh_token')) {
+      localStorage.removeItem('user')
+      localStorage.removeItem('token_expires')
+    }
+    if (localStorage.getItem('user')) {
+      isLogin.value = true
+    }
     const handleClickOutside = (event) => {
       if (!event.target.parentElement?.classList.contains('modal-avatar')) {
         isOpen.value = false
@@ -189,7 +197,11 @@ export default defineComponent({
           console.log(response)
 
           document.cookie = 'access_token='
+          document.cookie = 'refresh_token='
+
           localStorage.removeItem('user')
+          localStorage.removeItem('token_expires')
+
           router.push({ name: 'Signin' })
         })
         .catch((e) => console.log(e))
@@ -204,6 +216,7 @@ export default defineComponent({
       document.removeEventListener('click', handleClickOutside)
     })
     return {
+      isLogin,
       isOpen,
       isOpenLogin,
       user,

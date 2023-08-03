@@ -44,7 +44,7 @@
                       type="text"
                       class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <span v-if="errors.name" class="text-rose-500">*{{ errors.name[0] }}</span>
+                    <span v-if="errors?.name" class="text-rose-500">*{{ errors?.name[0] }}</span>
                   </div>
                 </div>
               </div>
@@ -61,7 +61,7 @@
                       type="number"
                       class="color-outline outline-none block w-3/4 rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <span v-if="errors.phone" class="text-rose-500">*{{ errors.phone[0] }}</span>
+                    <span v-if="errors?.phone" class="text-rose-500">*{{ errors?.phone[0] }}</span>
                   </div>
                 </div>
               </div>
@@ -72,14 +72,21 @@
                   >
                   <div class="mt-2 flex items-center gap-x-3">
                     <img
-                      :src="profile?.avatar || avatarDefault"
-                      class="inline-block h-20 w-20 rounded-full ring-2 ring-white mr-5"
+                      :src="previewAvatar || profile?.avatar || avatarDefault"
+                      class="inline-block h-20 w-20 rounded-full ring-2 ring-white mr-5 object-cover"
                       @error="handleAvatar"
                     />
                     <button
                       type="button"
                       class="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                      @click="openAvatarInput"
                     >
+                      <input
+                        ref="avatarInput"
+                        type="file"
+                        style="display: none"
+                        @change="handleAvatarChange"
+                      />
                       Change
                     </button>
                   </div>
@@ -110,12 +117,13 @@
                     ref="fileInput"
                     class="drop-zone__input"
                     type="file"
+                    accept="image/png, image/jpeg"
                     @change="handleFileChange"
                   />
                 </div>
-                <span v-if="errors.thumbnail" class="text-rose-500"
+                <!-- <span v-if="errors.thumbnail" class="text-rose-500"
                   >*{{ errors.thumbnail[0] }}</span
-                >
+                > -->
               </div>
             </div>
           </div>
@@ -137,51 +145,99 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue'
 import HomeMenu from '@/components/Menu.vue'
-import { useRoute } from 'vue-router'
 import Avatar from '@/components/Avatar.vue'
 import axios from 'axios'
 import avatarDefault from '@/assets/images/avatar-default.jpg'
+import { useRouter } from 'vue-router'
 import { getDataOnCookies } from '@/utils'
+import { request } from '@/utils/request'
 export default defineComponent({
   name: 'UpdateProject',
   components: { HomeMenu, Avatar },
   setup() {
     const profile = ref({})
     const errors = ref(false)
-    // const router = useRouter()
-    const route = useRoute()
+    const router = useRouter()
 
-    onMounted(
-      async () =>
-        await axios
-          .get(`http://127.0.0.1:8000/api/auth/v1/projects/${route.params.id}/data`, {
+    onMounted(async () => {
+      await axios
+        .get(
+          `http://127.0.0.1:8000/api/auth/v1/user/${
+            JSON.parse(localStorage.getItem('user') || '').id
+          }/profile`
+        )
+        .then((response) => {
+          profile.value = response.data.currentUser
+        })
+        .catch((e) => console.log(e))
+    })
+    async function handleSubmit() {
+      console.log({
+        name: profile.value?.name,
+        phone: profile.value?.phone,
+        avatar: profile.value?.avatar,
+      })
+
+      await request
+        .post(
+          `/user/update`,
+          {
+            name: profile.value?.name,
+            phone: profile.value?.phone,
+            avatar: profile.value?.avatar,
+          },
+          {
             headers: {
+              'Content-Type': 'multipart/form-data',
               Authorization: `Bearer ${getDataOnCookies('access_token')}`,
             },
-          })
-          .then((response) => {
-            profile.value = response.data
-          })
-          .catch((e) => console.log(e))
-    )
+          }
+        )
+        .then((response) => {
+          localStorage.setItem('user', JSON.stringify(response.data))
 
-    return { errors, profile }
+          console.log(response)
+
+          router.push({ path: `/profile/${JSON.parse(localStorage.getItem('user') || '').id}` })
+        })
+        .catch((e) => {
+          console.log(e)
+          errors.value = e.response.data.errors
+        })
+    }
+    return { errors, profile, handleSubmit }
   },
   data() {
     return {
-      previewThumbnail: '',
+      previewThumbnail: '' || null,
+      previewAvatar: null,
+
       fileName: '',
       thumbnailUpload: '',
       avatarDefault,
     }
   },
+
   methods: {
-    handleAvatar(event: Event) {
-      const imgElement = event.target as HTMLImageElement
-      imgElement.src = avatarDefault
-    },
     openFileInput() {
       this.$refs.fileInput.click()
+    },
+    openAvatarInput() {
+      this.$refs.avatarInput.click()
+    },
+    handleAvatarChange(event) {
+      const selectedFile = event.target.files[0]
+      this.profile.avatar = selectedFile
+
+      if (selectedFile) {
+        const reader = new FileReader()
+
+        reader.onload = (e) => {
+          this.previewAvatar = e.target.result
+        }
+
+        reader.readAsDataURL(selectedFile)
+      }
     },
     handleFileChange(e) {
       const file = e.target.files[0]
@@ -214,16 +270,19 @@ export default defineComponent({
         const reader = new FileReader()
 
         reader.readAsDataURL(file)
-        var url = window.URL || window.webkitURL
+        // var url = window.URL || window.webkitURL
 
         reader.onload = () => {
           this.previewThumbnail = reader.result
           this.thumbnailUpload = file
-          this.project.thumbnail = url.createObjectURL(file)
         }
       } else {
         this.previewThumbnail = null
       }
+    },
+    handleAvatar(event: Event) {
+      const imgElement = event.target as HTMLImageElement
+      imgElement.src = avatarDefault
     },
   },
 })

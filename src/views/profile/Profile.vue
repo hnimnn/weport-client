@@ -55,7 +55,7 @@
                   <img
                     alt="..."
                     :src="profile.avatar || defaultAvatar"
-                    class="shadow-xl rounded-full h-auto align-middle border-[6px] border-black left-1/2 top-[-15px] absolute -m-16 -ml-20 lg:-ml-16 min-w-[150px] max-w-150-px"
+                    class="shadow-xl rounded-full align-middle border-[6px] border-black left-1/2 top-[-15px] absolute -m-16 -ml-20 lg:-ml-16 min-w-[150px] min-h-[150px] max-w-150-px max-h-[150px] object-cover"
                     @error="handleAvatar"
                   />
                 </div>
@@ -87,6 +87,7 @@
                         v-if="isCurrent"
                         class="follow-btn uppercase ease-linear transition-all duration-150"
                         type="button"
+                        @click="() => router.push({ name: 'UpdateProfile' })"
                       >
                         Edit Profile
                       </button>
@@ -173,7 +174,7 @@ import Avatar from '@/components/Avatar.vue'
 import HomeMenu from '@/components/Menu.vue'
 import PopularCard from '@/components/PopularCard.vue'
 import defaultAvatar from '@/assets/images/avatar-default.jpg'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { computed } from 'vue'
 export default defineComponent({
@@ -187,6 +188,7 @@ export default defineComponent({
     const profile = ref({})
     const projects = ref({})
     const route = useRoute()
+    const router = useRouter()
 
     onMounted(async () => {
       await axios
@@ -207,7 +209,7 @@ export default defineComponent({
       else return false
     })
 
-    return { profile, projects, handleAvatar, isCurrent }
+    return { profile, projects, handleAvatar, isCurrent, router }
   },
   data() {
     return {

@@ -33,6 +33,7 @@
                     ref="fileInput"
                     class="drop-zone__input"
                     type="file"
+                    accept="image/png, image/jpeg"
                     @change="handleFileChange"
                   />
                 </div>
@@ -224,7 +225,7 @@ export default defineComponent({
       }).then(() => {
         console.log(errors)
 
-        if (!errors.value.name) {
+        if (!errors.value) {
           router.push({ name: 'ManageProject' })
         }
       })

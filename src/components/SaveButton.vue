@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { getDataOnCookies } from '@/utils'
-import axios from 'axios'
+import { request } from '@/utils/request'
 import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -69,13 +69,13 @@ export default defineComponent({
     const save = ref(false)
     const router = useRouter()
     async function handleSave() {
-      if (getDataOnCookies('access_token')) {
+      if (localStorage.getItem('user')) {
         save.value = !save.value
         console.log(save.value)
 
-        await axios
+        await request
           .post(
-            `http://127.0.0.1:8000/api/auth/v1/projects/${props.project.id}/save`,
+            `/projects/${props.project.id}/save`,
             {},
             {
               headers: {
@@ -87,6 +87,9 @@ export default defineComponent({
           )
           .then((response) => {
             console.log(response)
+          })
+          .catch((e) => {
+            console.log(e)
           })
       } else {
         router.push({ name: 'Signin' })

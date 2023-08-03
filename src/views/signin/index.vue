@@ -128,8 +128,16 @@ export default defineComponent({
           }
         )
         .then((response) => {
+          var now = new Date()
+          var timeExpires = new Date(now.getTime() + response.data.expires_in * 1000)
           document.cookie = `access_token=${response.data.access_token}; max-age=${response.data.expires_in}; path=/;`
+          document.cookie = `refresh_token=${response.data.refresh_token}; max-age=${
+            response.data.expires_in * 24 * 30
+          }; path=/;`
+
           localStorage.setItem('user', JSON.stringify(response.data.user))
+          localStorage.setItem('token_expires', JSON.stringify(timeExpires))
+
           router.push({ name: 'Home' })
         })
         .catch((e) => {

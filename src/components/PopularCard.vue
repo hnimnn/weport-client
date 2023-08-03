@@ -18,7 +18,7 @@
 
       <div class="p-2 mb-1">
         <div class="text-lg font-bold h-7">
-          <router-link :to="'/project-detail/' + info.id">
+          <router-link :to="'/project-detail/' + info?.id">
             {{ info?.name }}
           </router-link>
         </div>
@@ -31,12 +31,12 @@
         <div class="avatar relative flex items-center">
           <img
             :src="info.user?.avatar || avatarDefault"
-            class="inline-block h-10 w-10 rounded-full ring-2 ring-white mr-2"
+            class="inline-block h-10 w-10 rounded-full ring-2 ring-white mr-2 object-cover"
             @error="handleAvatar"
           />
           <ToolTip :content="info.user?.name">
             <template #content>
-              <router-link :to="'/profile/' + info.user.id">
+              <router-link :to="'/profile/' + info.user?.id">
                 <span class="text-base font-semibold hover:underline cursor-pointer h-fit">
                   {{
                     info.user?.name?.length > 12

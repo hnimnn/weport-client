@@ -17,9 +17,9 @@ import PopularCard from '@/components/PopularCard.vue'
 import HomeMenu from '@/components/Menu.vue'
 import Avatar from '@/components/Avatar.vue'
 import { onMounted } from 'vue'
-import axios from 'axios'
 import { getDataOnCookies } from '@/utils'
 import useProjects from '@/stores/project'
+import { request } from '@/utils/request'
 
 export default defineComponent({
   name: 'SavedProject',
@@ -33,8 +33,8 @@ export default defineComponent({
 
     onMounted(async () => {
       if (JSON.parse(localStorage.getItem('user') || '')) {
-        await axios
-          .get('http://127.0.0.1:8000/api/auth/v1/projects/save/list', {
+        await request
+          .get('/projects/save/list', {
             headers: {
               Authorization: `Bearer ${getDataOnCookies('access_token')}`,
             },

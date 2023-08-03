@@ -22,8 +22,8 @@
 import { defineComponent } from 'vue'
 import ManageProjectCard from '@/components/ManageProjectCard.vue'
 import HomeMenu from '@/components/Menu.vue'
-import axios from 'axios'
 import Avatar from '@/components/Avatar.vue'
+import { request } from '@/utils/request'
 export default defineComponent({
   name: 'ManageProject',
   components: {
@@ -44,8 +44,8 @@ function handleDeleteProject(id: number) {
 }
 onMounted(async () => {
   if (JSON.parse(localStorage.getItem('user'))) {
-    await axios
-      .get('http://127.0.0.1:8000/api/auth/v1/admin/projects/all', {
+    await request
+      .get('/admin/projects/all', {
         headers: {
           Authorization: `Bearer ${getDataOnCookies('access_token')}`,
         },
@@ -59,9 +59,9 @@ onMounted(async () => {
 })
 
 async function hanldeApprove(id: number, status: string) {
-  await axios
+  await request
     .post(
-      `http://127.0.0.1:8000/api/auth/v1/admin/projects/${id}/approve`,
+      `/admin/projects/${id}/approve`,
       { status: status },
       {
         headers: {
@@ -72,8 +72,8 @@ async function hanldeApprove(id: number, status: string) {
       }
     )
     .then(async (response) => {
-      await axios
-        .get('http://127.0.0.1:8000/api/auth/v1/admin/projects/all', {
+      await request
+        .get('/admin/projects/all', {
           headers: {
             Authorization: `Bearer ${getDataOnCookies('access_token')}`,
           },

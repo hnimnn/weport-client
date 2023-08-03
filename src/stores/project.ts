@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { getDataOnCookies } from '@/utils'
+import { request } from '@/utils/request'
 const instance = axios.create({
   baseURL: 'http://127.0.0.1:8000/api/auth/v1',
   withCredentials: false,
@@ -29,7 +30,7 @@ export default function useProjects() {
       .catch((e) => console.log(e))
   }
   const getProjectsByUserId = async () => {
-    await instance
+    await request
       .get('/user/projects', {
         headers: {
           Authorization: `Bearer ${getDataOnCookies('access_token')}`,
@@ -45,7 +46,7 @@ export default function useProjects() {
     try {
       errors.value = false
       console.log(data)
-      await instance.post('/projects', data, {
+      await request.post('/projects', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${getDataOnCookies('access_token')}`,
@@ -58,7 +59,7 @@ export default function useProjects() {
   }
   const deleteProject = async (id: number) => {
     try {
-      await instance.delete('/projects/' + id, {
+      await request.delete('/projects/' + id, {
         headers: { Authorization: `Bearer ${getDataOnCookies('access_token')}` },
       })
       await getProjectsByUserId()
@@ -77,7 +78,7 @@ export default function useProjects() {
   const updateProject = async (data: Project, id: number) => {
     errors.value = false
 
-    await instance
+    await request
       .post(`/projects/${id}?_method=PUT`, data, {
         headers: {
           'Content-Type': 'multipart/form-data',

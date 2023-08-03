@@ -14,7 +14,6 @@
       @click="
         () => {
           toggleLike()
-          $emit('like', liked)
         }
       "
     />
@@ -29,7 +28,8 @@ import LikeDisabled from '@/assets/icons/LikeDisabled.svg'
 import LikeDefaultDisabled from '@/assets/icons/LikeDefaultDisabled.svg'
 import { useRouter } from 'vue-router'
 import { getDataOnCookies } from '@/utils'
-import axios from 'axios'
+// import axios from 'axios'
+import { request } from '@/utils/request'
 export default defineComponent({
   name: 'LikeButton',
   props: {
@@ -53,15 +53,16 @@ export default defineComponent({
     },
   },
   emits: ['like'],
-  setup(props) {
+  setup(props, { emit }) {
     const liked = ref(false)
     const router = useRouter()
     async function toggleLike() {
-      if (getDataOnCookies('access_token')) {
+      if (localStorage.getItem('user')) {
         liked.value = !liked.value
-        await axios
+        emit('like', liked.value)
+        await request
           .post(
-            `http://127.0.0.1:8000/api/auth/v1/projects/${this.project.id}/like`,
+            `/projects/${this.project.id}/like`,
             {},
             {
               headers: {
